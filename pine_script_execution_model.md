@@ -1,4 +1,3 @@
-```markdown
 # Language / Execution model
 URL Source: https://www.tradingview.com/pine-script-docs/language
 
