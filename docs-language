@@ -31,7 +31,12 @@ A script can retrieve price, volume, and other essential data for each bar on wh
 
 For example, the simple script below uses the [plot()](https://www.tradingview.com/pine-script-reference/v6/#fun_plot) function to display the series of [close](https://www.tradingview.com/pine-script-reference/v6/#var_close) values (i.e., the closing price of each bar) on the chart:
 
-`//@version=6indicator("Bar-by-bar execution demo", overlay = true, behind_chart = false)// Plot the `close` series on the chart.// This call defines the plotted point for the current bar on each execution.plot(close, "Close price", chart.fg_color, 5)`
+//@version=6
+indicator("Bar-by-bar execution demo", overlay = true, behind_chart = false)
+
+// Plot the `close` series on the chart.
+// This call defines the plotted point for the current bar on each execution.
+plot(close, "Close price", chart.fg_color, 5)
 
 When a user first adds this script to their chart, its code executes _once_ for _every bar_ in the available dataset. As the script runs on the data, two primary steps occur on each bar:
 
@@ -52,7 +57,18 @@ Let’s look at a simple example. The following script declares an `x` variable 
 
 ![Image 2: image](https://www.tradingview.com/pine-script-docs/_astro/Execution-model-The-basics-Bar-by-bar-execution-2.CYV_XhNc_fPGku.webp)
 
-`//@version=6indicator("Repeated declarations demo")//@variable A user-defined variable. The script declares this variable and initializes it to 0 on *every* execution.int x = 0// Increase the value of `x` by 10 on every bar.x += 10// Plot the value of `x`.// Because `x` begins at 0 on every execution, and the script adds 10 to that value, the plotted value is always 10.plot(x, "`x` value", color.blue, 3)`
+//@version=6
+indicator("Repeated declarations demo")
+
+//@variable A user-defined variable. The script declares this variable and initializes it to 0 on *every* execution.
+int x = 0
+
+// Increase the value of `x` by 10 on every bar.
+x += 10
+
+// Plot the value of `x`.
+// Because `x` begins at 0 on every execution, and the script adds 10 to that value, the plotted value is always 10.
+plot(x, "`x` value", color.blue, 3)
 
 As shown above, the script plots a value of 10 on every bar, because the `x` variable _does not_ carry over from bar to bar; the script declares the variable _repeatedly_. On each bar, the script re-declares `x` with an initial value of 0, then adds 10 to that value, resulting in a final value of 10 for every plotted point.
 
