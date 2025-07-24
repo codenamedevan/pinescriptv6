@@ -1,0 +1,61 @@
+Title: Release notes
+
+URL Source: https://www.tradingview.com/pine-script-docs/release-notes/
+
+Markdown Content:
+This page contains release notes describing notable changes to the Pine Script® experience.
+
+[2025](https://www.tradingview.com/pine-script-docs/release-notes/#2025)
+------------------------------------------------------------------------
+
+### [July 2025](https://www.tradingview.com/pine-script-docs/release-notes/#july-2025)
+
+All `input*()` functions feature a new parameter: `active`. This parameter specifies whether users can change the value of the input in the “Settings/Inputs” tab. If `true`, users can change the input’s value. If `false`, the input is _grayed out_, and users _cannot_ change the value. Programmers can use this parameter to define inputs whose states depend on the values of _other_ inputs. For example:
+
+`//@version=6indicator("Active input demo")//@variable The length for the RSI calculation. int rsiLengthInput = input.int(14, "RSI length")string GRP1 = "Smoothing"//@variable If `true`, the script applies smoothing based on the two inputs below. //          If `false`, it does not apply smoothing, and those inputs are grayed out. bool enableSmoothingInput = input.bool(false, "Enable", group = GRP1)//@variable The length of the EMA for smoothing the RSI. int smoothLengthInput = input.int(9, "Length", 1, inline = "01", group = GRP1, active = enableSmoothingInput)//@variable The strength of the smoothing. If 1, the result is the EMA of the RSI. //          If less than 1, the result is a mix between the EMA and the original RSI. float mixInput = input.float(1.0, "Mix", 0, 1, 0.01, inline = "01", group = GRP1, active = enableSmoothingInput)//@variable The RSI of `close`.float rsi = ta.rsi(close, rsiLengthInput)//@variable The smoothed RSI.float smoothed = ta.ema(rsi, enableSmoothingInput ? smoothLengthInput : 1)//@variable The mixture between `rsi` and `smoothed`, based on the inputs. float osc = enableSmoothingInput ? (1.0 - mixInput) * rsi + mixInput * smoothed : rsi// Make horizontal lines, and fill the space between `obLine` and `osLine`. obLine = hline(70)hline(50)osLine = hline(30)fill(obLine, osLine, color.new(color.purple, 90))// Plot the `osc` series.plot(osc, "Custom RSI")`
+
+We’ve added a new `syminfo.*` variable:
+
+*   [syminfo.current_contract](https://www.tradingview.com/pine-script-reference/v6/#var_syminfo.current_contract) — The ticker identifier of the underlying contract, if the current symbol is a continuous futures contract; [na](https://www.tradingview.com/pine-script-reference/v6/#var_na) otherwise.
+
+### [June 2025](https://www.tradingview.com/pine-script-docs/release-notes/#june-2025)
+
+We’ve added ability to export constants from libraries. Now you can use `export` declaration with the ‘const int’, ‘const float’, ‘const bool’, ‘const color’, or ‘const string’ type, e.g:
+
+`//@version=6library("MyConstants")export const float my_pi = 3.15`
+
+### [May 2025](https://www.tradingview.com/pine-script-docs/release-notes/#may-2025)
+
+The [time_close](https://www.tradingview.com/pine-script-reference/v6/#var_time_close) variable and the [time_close()](https://www.tradingview.com/pine-script-reference/v6/#fun_time_close) function have improved behavior on [tick charts](https://www.tradingview.com/support/solutions/43000709225/) and price-based charts ([Renko](https://www.tradingview.com/support/solutions/43000502284/), [line break](https://www.tradingview.com/support/solutions/43000502273/), [Kagi](https://www.tradingview.com/support/solutions/43000502272/), [point & figure](https://www.tradingview.com/support/solutions/43000502276/), and [range](https://www.tradingview.com/support/solutions/43000474007/)). On chart types that are not time-based, the closing time of the open realtime bar is knowable only **after** the bar closes. Therefore, the value of [time_close](https://www.tradingview.com/pine-script-reference/v6/#var_time_close) and [time_close()](https://www.tradingview.com/pine-script-reference/v6/#fun_time_close) is always [na](https://www.tradingview.com/pine-script-reference/v6/#var_na) for that bar.
+
+Previously, it was impossible to use expressions such as `time_close[1]` or `time_close("", 1)` to retrieve the closing timestamp of an _elapsed realtime_ bar on these chart types. These expressions always returned [na](https://www.tradingview.com/pine-script-reference/v6/#var_na) when they referenced a realtime bar, because the bar’s timestamp was _not saved_ after the closing tick.
+
+With this new update, the closing timestamp of a realtime bar on tick charts or price-based charts is always available immediately after the bar closes. Now, scripts can use [time_close](https://www.tradingview.com/pine-script-reference/v6/#var_time_close) with the `[]`[history-referencing operator](https://www.tradingview.com/pine-script-docs/language/operators/#-history-referencing-operator) or call [time_close()](https://www.tradingview.com/pine-script-reference/v6/#fun_time_close) with a positive `bars_back` argument to retrieve the closing times of elapsed realtime bars on _any_ chart type. For example:
+
+`//@version=6 indicator("Previous closing time") // Plot the `time_close[1]` value, representing the UNIX timestamp of the past bar's closing time. // This plot used to show `na` on all realtime bars of tick charts and price-based charts. plot(time_close[1], "Previous bar's closing timestamp")`
+
+### [April 2025](https://www.tradingview.com/pine-script-docs/release-notes/#april-2025)
+
+The `style` parameter of the [ticker.renko()](https://www.tradingview.com/pine-script-reference/v6/#fun_ticker.renko), [ticker.pointfigure()](https://www.tradingview.com/pine-script-reference/v6/#fun_ticker.pointfigure), and [ticker.kagi()](https://www.tradingview.com/pine-script-reference/v6/#fun_ticker.kagi) functions accepts a new argument for box sizing: `"PercentageLTP"`. When a call to these functions uses this `style` argument, the returned ticker ID refers to a non-standard chart dataset with box sizes based on a user-defined percentage of the last trading price.
+
+### [March 2025](https://www.tradingview.com/pine-script-docs/release-notes/#march-2025)
+
+We’ve added a setter function for boxes: [box.set_xloc()](https://www.tradingview.com/pine-script-reference/v6/#fun_box.set_xloc). It is similar to the `*.set_xloc()` functions for lines and labels. The function sets the left and right coordinates of the box borders, and defines whether their values represent bar indices or UNIX timestamps.
+
+#### [For loop updates](https://www.tradingview.com/pine-script-docs/release-notes/#for-loop-updates)
+
+The [for](https://www.tradingview.com/pine-script-reference/v6/#kw_for) loop structure has updated boundary-checking behavior. Previously, any [for](https://www.tradingview.com/pine-script-reference/v6/#kw_for) statement established the loop counter’s end boundary (`to_num`) _before_ starting the first iteration, and the final possible counter value _could not change_ during the loop’s execution. Changing the result of an expression used as a [for](https://www.tradingview.com/pine-script-reference/v6/#kw_for) loop’s `to_num` argument inside the local scope _did not_ affect the loop’s iteration range.
+
+Now, a [for](https://www.tradingview.com/pine-script-reference/v6/#kw_for) loop evaluates the `to_num` boundary _dynamically_, before _every iteration_. With this update, the loop statement can modify its stopping condition after any change to the `to_num` argument’s result across iterations.
+
+To learn more about this new behavior, refer to the [`for` loops](https://www.tradingview.com/pine-script-docs/language/loops/#for-loops) section of the [Loops](https://www.tradingview.com/pine-script-docs/language/loops/) page and the [Dynamic `for` loop boundaries](https://www.tradingview.com/pine-script-docs/migration-guides/to-pine-version-6/#dynamic-for-loop-boundaries) section of the [v6 migration guide](https://www.tradingview.com/pine-script-docs/migration-guides/to-pine-version-6/).
+
+### [February 2025](https://www.tradingview.com/pine-script-docs/release-notes/#february-2025)
+
+We’ve removed the scope count limit. Previously, any script’s total number of scopes, including the global scope and all local scopes from [user-defined functions](https://www.tradingview.com/pine-script-docs/language/user-defined-functions/) and [methods](https://www.tradingview.com/pine-script-docs/language/methods/#user-defined-methods), [loops](https://www.tradingview.com/pine-script-docs/language/loops/), [conditional structures](https://www.tradingview.com/pine-script-docs/language/conditional-structures/), [user-defined types](https://www.tradingview.com/pine-script-docs/language/type-system/#user-defined-types), and [enums](https://www.tradingview.com/pine-script-docs/language/enums/), was limited to 550. Now, scripts can contain an indefinite number of local scopes from these structures.
+
+We’ve introduced two new built-in variables, `bid` and `ask`, providing access to real-time market prices:
+
+*   [bid](https://www.tradingview.com/pine-script-reference/v6/#var_bid) - represents the highest price an active buyer is willing to pay for the instrument at its current value.
+*   [ask](https://www.tradingview.com/pine-script-reference/v6/#var_ask) - represents the lowest price an active seller will accept for the instrument at its current value.
+
