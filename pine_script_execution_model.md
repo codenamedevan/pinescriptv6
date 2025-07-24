@@ -1,7 +1,3 @@
-Okay, I will create a downloadable markdown file containing the entire document with the Pine Script v6 code blocks properly formatted and enclosed in code fences.
-
-Here is the content for the markdown file:
-
 ```markdown
 # Language / Execution model
 URL Source: https://www.tradingview.com/pine-script-docs/language
@@ -631,5 +627,3 @@ To summarize the behavior of time series in a script’s scopes:
 *   A script evaluates its global scope once on _every execution_. After each script execution on a bar’s closing tick, the system commits the data for variables and expressions in the global scope and updates their [historical buffers](https://www.tradingview.com/pine-script-docs/language/execution-model/#historical-buffers). The resulting buffers thus include data for consecutive past bars, ensuring consistent results for operations and functions that rely on past data.
 *   A script evaluates local scopes _zero_, _one_, or _several_ times per execution. The runtime system **cannot** maintain consistent bar-by-bar historical buffers for scopes that a script does _not_ evaluate on every bar, or for scopes that the script evaluates _more than once_ on a bar’s closing tick. Therefore, using the [[]](https://www.tradingview.com/pine-script-reference/v6/#op_%5B%5D) operator on local variables and expressions, or not calling functions that access past data once on each closing tick, can cause **unintended results**.
 ```
-
-You can copy this content and save it as a `.md` file (e.g., `pine_script_execution_model.md`) to download and use.
