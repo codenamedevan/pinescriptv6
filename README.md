@@ -4,7 +4,7 @@
 **Source:** [TradingView Pine Script™ v6 Reference Manual](https://www.tradingview.com/pine-script-reference/v6/)
 
 ## 🤖 What is this?
-This repository contains the official Pine Script v6 documentation, restructured and "chunked" specifically for Large Language Models (LLMs) like GPT-4, Claude 3.5 Sonnet, and Gemini.
+This repository contains the official Pine Script v6 documentation, restructured and "chunked" specifically for Large Language Models (LLMs).
 
 The official documentation is massive. Feeding the entire raw documentation into an LLM often confuses it or exceeds context limits, leading to hallucinations or generic v5 code. This repository breaks the documentation into logical, namespaced markdown files to improve **Retrieval Augmented Generation (RAG)** and **Context Window efficiency**.
 
