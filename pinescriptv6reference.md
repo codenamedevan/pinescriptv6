@@ -1,5 +1,4 @@
-# Pine Script v6 Reference
-
+# Pine Script® language reference manual
 
 # Variables 
 
@@ -7,9 +6,10 @@
 
 ## ask
 
+The ask price at the time of the current tick, which represents the lowest price an active seller will accept for the instrument at its current value. This information is available only on the "1T" timeframe. On other timeframes, the variable's value is na.
+
 **Type:** series float
 
-The ask price at the time of the current tick, which represents the lowest price an active seller will accept for the instrument at its current value. This information is available only on the "1T" timeframe. On other timeframes, the variable's value is na.
 
 ### Remarks
 If the bid/ask values change since the last tick but no new trades are made, these changes will not be reflected in the value of this variable. It is only updated on new ticks.
@@ -2272,6 +2272,7 @@ Current bar year in exchange timezone.
 ### Remarks
 Note that this variable returns the year based on the time of the bar's open. For overnight sessions (e.g. EURUSD, where Monday session starts on Sunday, 17:00) this value can be lower by 1 than the year of the trading day.
 
+# Constants
 ---
 
 ## adjustment.dividends
@@ -3964,6 +3965,8 @@ A named constant that specifies the algorithm of interpretation of y-value in fu
 A named constant that specifies the algorithm of interpretation of y-value in function label.new.
 
 ---
+
+# Functions
 
 ## alert()
 
@@ -12705,6 +12708,8 @@ UNIX time is the number of milliseconds that have elapsed since 00:00:00 UTC, 1 
 
 ---
 
+# Keywords
+
 ## and
 
 Logical AND. Applicable to boolean expressions.
@@ -13189,6 +13194,8 @@ plot(factorial)
 ```
 
 ---
+
+# Types
 
 ## array
 
@@ -13904,7 +13911,7 @@ Greater than or equal to. Applicable to numerical expressions.
 Boolean value, or series of boolean values.
 
 ---
-# **Annotations**
+# Annotations
 
 ## @description
 
