@@ -1,212 +1,166 @@
 
-# [Error  messages](https://www.tradingview.com/pine-script-docs/error-messages/#error-messages)
+# Error  messages
 
-## [The if statement is too  long](https://www.tradingview.com/pine-script-docs/error-messages/#the-if-statement-is-too-long)
+## The if statement is too  long
 
 This error occurs when the indented code (local block) inside an  [`if` structure](https://www.tradingview.com/pine-script-docs/language/conditional-structures/#if-structure)  is too large for the compiler. Because of how the compiler works, you won’t receive a message telling you exactly how many lines of code you are over the limit. The only solution now is to split the structure into smaller parts (functions or smaller  [if](https://www.tradingview.com/pine-script-reference/v6/#kw_if)  statements). The example below shows a reasonably lengthy  [if](https://www.tradingview.com/pine-script-reference/v6/#kw_if)  statement; theoretically, this would throw  `line 4: if statement is too long`:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("My script")
 
-Copied
+var e = 0
+if barstate.islast
+    a = 1
+    b = 2
+    c = 3
+    d = 4
+    e := a + b + c + d
 
-`//@version=6  
-indicator("My script")  
-  
-var  e  =  0  
-if  barstate.islast  
-a  =  1  
-b  =  2  
-c  =  3  
-d  =  4  
-e  :=  a  +  b  +  c  +  d  
-  
-plot(e)  
-`
+plot(e)
+```
 
-To fix this code, you could move these lines into their own function:
-
-[Pine Script®](https://tradingview.com/pine-script-docs)
-
-Copied
-
-`//@version=6  
-indicator("My script")  
-  
-var  e  =  0  
-doSomeWork() =>  
-a  =  1  
-b  =  2  
-c  =  3  
-d  =  4  
-  
-result  =  a  +  b  +  c  +  d  
-  
-if  barstate.islast  
-e  :=  doSomeWork()  
-  
-plot(e)  
-`
-
-## [Script requesting too many  securities](https://www.tradingview.com/pine-script-docs/error-messages/#script-requesting-too-many-securities)
+## Script requesting too many  securities
 
 The maximum number of securities in script is limited to 40. If you declare a variable as a  `request.security`  function call and then use that variable as input for other variables and calculations, it will not result in multiple  `request.security`  calls. But if you will declare a function that calls  `request.security`  --- every call to this function will count as a  `request.security`  call.
 
 It is not easy to say how many securities will be called looking at the source code. Following example have exactly 3 calls to  `request.security`  after compilation:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Securities count")
+a = request.security(syminfo.tickerid, '42', close)  // (1) first unique security call
+b = request.security(syminfo.tickerid, '42', close)  // same call as above, will not produce new security call after optimizations
 
-Copied
+plot(a)
+plot(a + 2)
+plot(b)
 
-`//@version=6  
-indicator("Securities count")  
-a  =  request.security(syminfo.tickerid,  '42',  close) // (1) first unique security call  
-b  =  request.security(syminfo.tickerid,  '42',  close) // same call as above, will not produce new security call after optimizations  
-  
-plot(a)  
-plot(a  +  2)  
-plot(b)  
-  
-sym(p) =>  // no security call on this line  
-request.security(syminfo.tickerid,  p,  close)  
-plot(sym('D')) // (2) one indirect call to security  
-plot(sym('W')) // (3) another indirect call to security  
-  
-c  =  request.security(syminfo.tickerid,  timeframe.period,  open) // result of this line is never used, and will be optimized out  
-`
+sym(p) =>  // no security call on this line
+    request.security(syminfo.tickerid, p, close)
+plot(sym('D'))  // (2) one indirect call to security
+plot(sym('W'))  // (3) another indirect call to security
 
-## [Script could not be translated from:  null](https://www.tradingview.com/pine-script-docs/error-messages/#script-could-not-be-translated-from-null)
+c = request.security(syminfo.tickerid, timeframe.period, open)  // result of this line is never used, and will be optimized out
+```
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+## Script could not be translated from:  null
 
-Copied
-
-`study($)  
-`
+### Code Example
+```pine
+study($)
+```
 
 Usually this error occurs in version 1 Pine scripts, and means that code is incorrect. Pine Script® of version 2 (and higher) is better at explaining errors of this kind. So you can try to switch to version 2 by adding a  [special attribute](https://www.tradingview.com/pine-script-docs/language/script-structure/#version)  in the first line. You’ll get  `line 2: no viable alternative at character '$'`:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+// @version=2
+study($)
+```
 
-Copied
-
-`// @version=2  
-study($)  
-`
-
-## [line 2: no viable alternative at character  ’$’](https://www.tradingview.com/pine-script-docs/error-messages/#line-2-no-viable-alternative-at-character-)
+## line 2: no viable alternative at character  ’$’
 
 This error message gives a hint on what is wrong.  `$`  stands in place of string with script title. For example:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+// @version=2
+study("title")
+```
 
-Copied
-
-`// @version=2  
-study("title")  
-`
-
-## [Mismatched input <…> expecting <???>](https://www.tradingview.com/pine-script-docs/error-messages/#mismatched-input--expecting-)
+## Mismatched input <…> expecting <???>
 
 Same as  `no viable alternative`, but it is known what should be at that place. Example:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
-
-Copied
-
-`//@version=6  
-indicator("My Script")  
-plot(1)  
-`
+### Code Example
+```pine
+//@version=6
+indicator("My Script")
+    plot(1)
+```
 
 `line 3: mismatched input 'plot' expecting 'end of line without line continuation'`
 
 To fix this you should start line with  `plot`  on a new line without an indent:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("My Script")
+plot(1)
+``` 
 
-Copied
-
-`//@version=6  
-indicator("My Script")  
-plot(1)  
-`
-
-## [Loop is too long (> 500  ms)](https://www.tradingview.com/pine-script-docs/error-messages/#loop-is-too-long--500-ms)
+## Loop is too long (> 500  ms)
 
 We limit the computation time of loop on every historical bar and realtime tick to protect our servers from infinite or very long loops. This limit also fail-fast indicators that will take too long to compute. For example, if you’ll have 5000 bars, and indicator takes 500 milliseconds to compute on each of bars, it would have result in more than 16 minutes of loading:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
-
-Copied
-
-`//@version=6  
-indicator("Loop is too long",  max_bars_back  =  101)  
-s  =  0  
-for  i  =  1  to  1e3  // to make it longer  
-for  j  =  0  to  100  
-if  timestamp(2017,  02,  23,  00,  00) <=  time[j] and  time[j] <  timestamp(2017,  02,  23,  23,  59)  
-s  :=  s  +  1  
-plot(s)  
-`
+### Code Example
+```pine
+//@version=6
+indicator("Loop is too long", max_bars_back = 101)
+s = 0
+for i = 1 to 1e3  // to make it longer
+    for j = 0 to 100
+        if timestamp(2017, 02, 23, 00, 00) <= time[j] and time[j] < timestamp(2017, 02, 23, 23, 59)
+            s := s + 1
+plot(s)
+``` 
 
 It might be possible to optimize algorithm to overcome this error. In this case, algorithm may be optimized like this:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Loop is too long", max_bars_back = 101)
+bar_back_at(t) =>
+    i = 0
+    step = 51
+    for j = 1 to 100
+        if i < 0
+            i := 0
+            break
+        if step == 0
+            break
+        if time[i] >= t
+            i := i + step
+            i
+        else
+            i := i - step
+            i
+        step := step / 2
+        step
+    i
 
-Copied
+s = 0
+for i = 1 to 1e3  // to make it longer
+    s := s - bar_back_at(timestamp(2017, 02, 23, 23, 59)) +
+         bar_back_at(timestamp(2017, 02, 23, 00, 00))
+    s
+plot(s)
+``` 
 
-`//@version=6  
-indicator("Loop is too long",  max_bars_back  =  101)  
-bar_back_at(t) =>  
-i  =  0  
-step  =  51  
-for  j  =  1  to  100  
-if  i  <  0  
-i  :=  0  
-break  
-if  step  ==  0  
-break  
-if  time[i] >=  t  
-i  :=  i  +  step  
-i  
-else  
-i  :=  i  -  step  
-i  
-step  :=  step  /  2  
-step  
-i  
-  
-s  =  0  
-for  i  =  1  to  1e3  // to make it longer  
-s  :=  s  -  bar_back_at(timestamp(2017,  02,  23,  23,  59)) +  
-bar_back_at(timestamp(2017,  02,  23,  00,  00))  
-s  
-plot(s)  
-`
-
-## [Script has too many local  variables](https://www.tradingview.com/pine-script-docs/error-messages/#script-has-too-many-local-variables)
+## Script has too many local  variables
 
 This error appears if the script is too large to be compiled. A statement  `var=expression`  creates a local variable for  `var`. Apart from this, it is important to note, that auxiliary variables can be implicitly created during the process of a script compilation. The limit applies to variables created both explicitly and implicitly. The limitation of 1000 variables is applied to each function individually. In fact, the code placed in a  _global_  scope of a script also implicitly wrapped up into the main function and the limit of 1000 variables becomes applicable to it. There are few refactorings you can try to avoid this issue:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
-
-Copied
-
-`var1  =  expr1  
-var2  =  expr2  
-var3  =  var1  +  var2  
-`
+### Code Example
+```pine
+var1 = expr1
+var2 = expr2
+var3 = var1 + var2
+``` 
 
 can be converted into:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+var3 = expr1 + expr2
+``` 
 
-Copied
-
-`var3  =  expr1  +  expr2  
-`
-
-## [The requested historical offset (X) is beyond the historical buffer’s limit  (Y)](https://www.tradingview.com/pine-script-docs/error-messages/#the-requested-historical-offset-x-is-beyond-the-historical-buffers-limit-y)
+## The requested historical offset (X) is beyond the historical buffer’s limit  (Y)
 
 Pine scripts calculate on every bar on the chart, sequentially, left to right, maintaining a historical buffer of values. When a script needs to use a value from a previous bar, it takes that value from the buffer. If a script tries to access a value from a bar further back than the historical buffer extends, it throws this error.
 
@@ -219,98 +173,88 @@ Pine creates the historical buffer in a way that minimizes issues:
 
 The error can still appear on historical data, but is more likely to occur on realtime data, which is not covered by automatic buffer detection. For example, the following script works when the user first adds it to the chart, but fails with an error when the first realtime tick arrives. This behaviour can be replicated consistently by turning on the Bar Replay feature and pressing Step Forward once. This happens because on historical data, we request  `close[500]`, which establishes the size of the historical buffer as 500. When we request  `close[1000]`  on the first realtime bar, the script returns an error because the requested value is outside the buffer:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Error on realtime bars")
+myVar = close[barstate.ishistory ? 500 : 1000]
+plot(myVar)
+``` 
 
-Copied
+To fix this, we need to ensure the historical buffer of our variable (in this case,  `close`) is always large enough.
 
-`//@version=6  
-indicator("Error on realtime bars")  
-myVar  =  close[barstate.ishistory  ?  500  :  1000]  
-plot(myVar)  
-`
-
-To fix this, we need to ensure the historical buffer of our variable (in this case,  [close](https://www.tradingview.com/pine-script-reference/v6/#var_close)) is always large enough.
-
-NoticeThe maximum possible buffer size for most variables is 5000, and referring further into the past causes a different runtime error. To avoid that error, programmers can limit the requested offsets by using expressions such as  `math.min(myVar, 5000)`.
+> **Notice** The maximum possible buffer size for most variables is 5000, and referring further into the past causes a different runtime error. To avoid that error, programmers can limit the requested offsets by using expressions such as  `math.min(myVar, 5000)`.
 
 The following sections describe different methods to ensure that the historical buffer is of a sufficient size.
 
-### [Potential  fixes](https://www.tradingview.com/pine-script-docs/error-messages/#potential-fixes)
+### Potential  fixes
 
-#### [Use the ​`max_bars_back()`​ function](https://www.tradingview.com/pine-script-docs/error-messages/#use-the-max_bars_back-function)
+#### Use the ​`max_bars_back()`​ function
 
-The  [max_bars_back()](https://www.tradingview.com/pine-script-reference/v6/#fun_max_bars_back)  function sets the size of the historical buffer for a particular variable. To fix the issue in the example script above, we need to ensure the buffer for  [close](https://www.tradingview.com/pine-script-reference/v6/#var_close)  is at least 1000:
+The  `max_bars_back()` function sets the size of the historical buffer for a particular variable. To fix the issue in the example script above, we need to ensure the buffer for  `close`  is at least 1000:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Error on realtime bars")
+myVar = close[barstate.ishistory ? 500 : 1000]
+max_bars_back(close, 1000)
+plot(myVar)
+``` 
 
-Copied
-
-`//@version=6  
-indicator("Error on realtime bars")  
-myVar  =  close[barstate.ishistory  ?  500  :  1000]  
-max_bars_back(close,  1000)  
-plot(myVar)  
-`
-
-#### [Use the ​`max_bars_back`​ parameter of the ​`indicator()`​ or ​`strategy()`​ function](https://www.tradingview.com/pine-script-docs/error-messages/#use-the-max_bars_back-parameter-of-the-indicator-or-strategy-function)
+#### Use the ​`max_bars_back`​ parameter of the ​`indicator()`​ or ​`strategy()`​ function
 
 The  `max_bars_back`  parameter of the  [indicator()](https://www.tradingview.com/pine-script-reference/v6/#fun_indicator)  and  [strategy()](https://www.tradingview.com/pine-script-reference/v6/#fun_strategy)  functions provides a handy way to increase the historical buffer for  _all_  the variables inside of the script. However, increasing the historical buffer for all variables without a specific need for it negatively impacts performance. Using the  [max_bars_back()](https://www.tradingview.com/pine-script-reference/v6/#fun_max_bars_back)  function is preferable because it is more precise and more performant.
 
-NoticeWhen using  `max_bars_back`, choose the  **minimum**  default buffer size that accommodates all the script’s historical references. Buffer sizes that are larger than what a script requires can significantly impact its performance. For example, using  `max_bars_back = 5000`  in a script that references up to only 700 bars back causes an excessive use of resources.
+> **Notice** When using  `max_bars_back`, choose the  **minimum**  default buffer size that accommodates all the script’s historical references. Buffer sizes that are larger than what a script requires can significantly impact its performance. For example, using  `max_bars_back = 5000`  in a script that references up to only 700 bars back causes an excessive use of resources.
 
-#### [Use the maximum value manually on history to force a proper buffer  size](https://www.tradingview.com/pine-script-docs/error-messages/#use-the-maximum-value-manually-on-history-to-force-a-proper-buffer-size)
+#### Use the maximum value manually on history to force a proper buffer  size
 
 Another way to set a specific historical buffer is to call the variable on historical data with the maximum buffer required, regardless of whether it’s needed or not at the moment. For example, the script below assigns the  `myVar`  variable a  `close[1000]`  value on the very first bar of the dataset. It makes no practical difference — on the first bar, all past values are  [na](https://www.tradingview.com/pine-script-reference/v6/#var_na)  — but because of this change, the script sets the variable’s buffer to 1000 and can then work on realtime bars without issues:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Error on realtime bars")
+myVar = close[barstate.isfirst ? 1000 : barstate.ishistory ? 500 : 1000]
+plot(myVar)
+``` 
 
-Copied
-
-`//@version=6  
-indicator("Error on realtime bars")  
-myVar  =  close[barstate.isfirst  ?  1000  :  barstate.ishistory  ?  500  :  1000]  
-plot(myVar)  
-`
-
-### [Max bars back with Pine  drawings](https://www.tradingview.com/pine-script-docs/error-messages/#max-bars-back-with-pine-drawings)
+### Max bars back with Pine  drawings
 
 A common reason for the historical offset error is creating drawings that are drawn on realtime data, but extend into the past. For example, the code below runs into the runtime error as soon as the first realtime tick arrives:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Realtime error with drawings")
 
-Copied
+if barstate.isrealtime
+    line.new(bar_index[500], close, bar_index, close)
+``` 
 
-`//@version=6  
-indicator("Realtime error with drawings")  
-  
-if  barstate.isrealtime  
-line.new(bar_index[500],  close,  bar_index,  close)  
-`
-
-NoteAll Pine drawings that anchor to the chart convert their horizontal coordinates into  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  values internally, even if the programmer defines those coordinates using  [bar_index](https://www.tradingview.com/pine-script-reference/v6/#var_bar_index)  values.
+> **Note** eAll Pine drawings that anchor to the chart convert their horizontal coordinates into  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  values internally, even if the programmer defines those coordinates using  [bar_index](https://www.tradingview.com/pine-script-reference/v6/#var_bar_index)  values.
 
 When the example indicator above is calculating on historical data, it does not draw any lines, and so does not call the  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  series at all. In this case, the  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  series takes the default buffer size of 300. On realtime bars, we then request the  `bar_index[500]`  value, which is converted into  `time[500]`  by the function. But the script doesn’t have a large enough historical buffer, which causes the error to appear.
 
 In these cases, the historical buffer for the  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  series must be enlarged, even if the drawing functions use  [bar_index](https://www.tradingview.com/pine-script-reference/v6/#var_bar_index)  exclusively. The easiest fix is to call the  [max_bars_back()](https://www.tradingview.com/pine-script-reference/v6/#fun_max_bars_back)  function on the  [time](https://www.tradingview.com/pine-script-reference/v6/#var_time)  series, to ensure that its buffer is large enough:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Realtime error with drawings")
 
-Copied
+max_bars_back(time, 500)
 
-`//@version=6  
-indicator("Realtime error with drawings")  
-  
-max_bars_back(time,  500)  
-  
-if  barstate.isrealtime  
-line.new(bar_index[500],  close,  bar_index,  close)  
-`
+if barstate.isrealtime
+    line.new(bar_index[500], close, bar_index, close)
+``` 
 
-## [Memory limits  exceeded](https://www.tradingview.com/pine-script-docs/error-messages/#memory-limits-exceeded)
+## Memory limits  exceeded
 
 The most common cause of this error is the retrieval of  [objects](https://www.tradingview.com/pine-script-docs/language/objects/#objects)  and  [collections](https://www.tradingview.com/pine-script-docs/language/type-system/#collections)  from  `request.*()`  functions such as  [request.security()](https://www.tradingview.com/pine-script-reference/v6/#fun_request.security). Other possible causes include unnecessary drawing updates, excess historical buffer capacity, or inefficient use of  [max_bars_back()](https://www.tradingview.com/pine-script-reference/v6/#fun_max_bars_back).
 
-### [Returning collections from ​`request.*()`​ functions](https://www.tradingview.com/pine-script-docs/error-messages/#returning-collections-from-request-functions)
+### Returning collections from ​`request.*()`​ functions
 
 The “Memory limits exceeded” error most often occurs when a script uses  `request.*()`  functions to retrieve  [objects](https://www.tradingview.com/pine-script-docs/language/objects/#objects)  or  [collections](https://www.tradingview.com/pine-script-docs/language/type-system/#collections)  from another symbol or timeframe.
 
@@ -318,58 +262,56 @@ When requesting data from other contexts, the data for  _each bar_  is copied an
 
 The example script below uses  [request.security()](https://www.tradingview.com/pine-script-reference/v6/#fun_request.security)  to retrieve the result of a  [user-defined function](https://www.tradingview.com/pine-script-docs/language/user-defined-functions/)  evaluated on the “1D” timeframe. The custom function (`dataFunction()`) creates an array and assigns its reference to a persistent variable declared  [using the `var` keyword](https://www.tradingview.com/pine-script-docs/language/arrays/#using-var-and-varip-keywords), then pushes a new  [balance of power (BOP)](https://www.tradingview.com/support/solutions/43000589100-balance-of-power-bop/)  value into the array and returns the collection’s reference on each bar. Each time that  [request.security()](https://www.tradingview.com/pine-script-reference/v6/#fun_request.security)  evaluates the  `dataFunction()`  call on the “1D” timeframe, the result references a  _new copy_  of that array. Retrieving a new array from a requested context on each bar consumes a lot of memory. Therefore, this script can  _exceed_  the memory limits when running on symbols with a sufficiently lengthy history:
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("BOP array in higher timeframe context", "Memory limit demo")
 
-Copied
+//@variable User-input length for calculating average of BOP values. 
+int avgLength = input.int(5, "Average BOP Length", minval = 1)
 
-``//@version=6  
-indicator("BOP array in higher timeframe context",  "Memory limit demo")  
-  
-//@variable User-input length for calculating average of BOP values.  
-int  avgLength  =  input.int(5,  "Average BOP Length",  minval  =  1)  
-  
-//Returns a copy of the `dataArray` on every bar, which uses a lot of memory.  
-dataFunction() =>  
-//@variable Persistent array containing the "balance of power" (BOP) values for all bars from the higher timeframe.  
-var  array<float> dataArray  =  array.new<float>(0)  
-  
-//@variable The "balance of power" percentage calculated for the current bar.  
-float  bop  = (close  -  open) / (high  -  low) *  100  
-dataArray.push(bop)  
-  
-//Return the full collection.  
-dataArray  
-  
-// Request the full BOP array from the 1D timeframe.  
-array<float> reqData  =  request.security(syminfo.tickerid,  "1D",  dataFunction())  
-  
-// Plot zero line.  
-hline(0,  "Zero line",  color.gray,  hline.style_dotted)  
-  
-// Latest BOP value and average BOP are calculated in the main context if `reqData` is not `na`.  
-//@variable The latest BOP value from the `reqData` array.  
-float  latestValue  =  na  
-//@variable The average of the last `avgLength` BOP values.  
-float  avgBOP  =  na  
-  
-if  not  na(reqData)  
-// Retrieve BOP value for the current main context bar.  
-latestValue  :=  reqData.last()  
-  
-// Calculate the average BOP for the most-recent values from the higher timeframe array.  
-//@variable Size of the `reqData` array returned from the higher timeframe.  
-int  dataSize  =  reqData.size()  
-//@variable A subset of the latest values from the `reqData` array. Its size is determined by the `avgLength` set.  
-array<float> lastValues  =  dataSize  >=  avgLength  ?  reqData.slice(dataSize  -  avgLength,  dataSize):  reqData  
-avgBOP  :=  lastValues.avg()  
-  
-// Plot the BOP value and average line.  
-color  plotColor  =  latestValue  >=  0  ?  color.aqua  :  color.orange  
-plot(latestValue,  "BOP",  plotColor,  style  =  plot.style_columns)  
-plot(avgBOP,  "Avg",  color.purple,  linewidth  =  3)  
-``
+//Returns a copy of the `dataArray` on every bar, which uses a lot of memory.
+dataFunction() => 
+    //@variable Persistent array containing the "balance of power" (BOP) values for all bars from the higher timeframe.
+    var array<float> dataArray = array.new<float>(0)
 
-### [How do I fix  this?](https://www.tradingview.com/pine-script-docs/error-messages/#how-do-i-fix-this)
+    //@variable The "balance of power" percentage calculated for the current bar.
+    float bop = (close - open) / (high - low) * 100
+    dataArray.push(bop)
+
+    //Return the full collection.
+    dataArray
+
+// Request the full BOP array from the 1D timeframe.
+array<float> reqData = request.security(syminfo.tickerid, "1D", dataFunction())
+
+// Plot zero line.
+hline(0, "Zero line", color.gray, hline.style_dotted)
+
+// Latest BOP value and average BOP are calculated in the main context if `reqData` is not `na`.
+//@variable The latest BOP value from the `reqData` array.
+float latestValue = na
+//@variable The average of the last `avgLength` BOP values.
+float avgBOP = na
+
+if not na(reqData)
+    // Retrieve BOP value for the current main context bar.
+    latestValue := reqData.last()
+
+    // Calculate the average BOP for the most-recent values from the higher timeframe array.
+    //@variable Size of the `reqData` array returned from the higher timeframe.
+    int dataSize = reqData.size()
+    //@variable A subset of the latest values from the `reqData` array. Its size is determined by the `avgLength` set.
+    array<float> lastValues = dataSize >= avgLength ? reqData.slice(dataSize - avgLength, dataSize): reqData
+    avgBOP := lastValues.avg()
+
+// Plot the BOP value and average line.
+color plotColor = latestValue >= 0 ? color.aqua : color.orange
+plot(latestValue, "BOP", plotColor, style = plot.style_columns)
+plot(avgBOP, "Avg", color.purple, linewidth = 3)
+``` 
+
+### How do I fix  this?
 
 Optimize requests and limit the data returned to the main context to ensure that only the  _minimum necessary_  data is stored in memory.
 
@@ -377,7 +319,7 @@ If possible, try to return  _calculated results_  directly rather than returning
 
 Let’s consider a few common scenarios where scripts need specific data in the main context.
 
-#### [Return last state  only](https://www.tradingview.com/pine-script-docs/error-messages/#return-last-state-only)
+#### Return last state  only
 
 If a script requires only the  _latest_  state of a requested collection, use a  [conditional structure](https://www.tradingview.com/pine-script-docs/language/conditional-structures/)  or expression with  [barstate.islast](https://www.tradingview.com/pine-script-reference/v6/#var_barstate.islast)  as the condition to limit retrieving a copy of that collection to the last available bar.
 
@@ -385,57 +327,55 @@ Here, we modified our script to display only the  _latest_  average BOP (a singl
 
 ![image](https://www.tradingview.com/pine-script-docs/_astro/Errors-Return-last-state-only.B7DlHDxT_1Srw3K.webp)
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("BOP array on last bar", "Memory limit demo")
 
-Copied
+//@variable User-input length for calculating average of BOP values. 
+int avgLength = input.int(5, "Average BOP Length", minval = 1)
 
-``//@version=6  
-indicator("BOP array on last bar",  "Memory limit demo")  
-  
-//@variable User-input length for calculating average of BOP values.  
-int  avgLength  =  input.int(5,  "Average BOP Length",  minval  =  1)  
-  
-// Returns the calculated `bop` each bar, and a copy of the `dataArray` on the last bar or `na` otherwise.  
-dataFunction() =>  
-//@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.  
-var  array<float> dataArray  =  array.new<float>(0)  
-  
-//@variable The "balance of power" percentage calculated for the current higher timeframe bar.  
-float  bop  = (close  -  open) / (high  -  low) *  100  
-dataArray.push(bop)  
-  
-// Return the collection on the last bar only.  
-if  barstate.islast  
-[bop,  dataArray]  
-else  
-[bop,  na]  
-  
-// Request calculated BOP value, and BOPs array if on last bar, from the higher timeframe.  
-[reqValue,  reqData] =  request.security(syminfo.tickerid,  "1D",  dataFunction())  
-  
-// Plot zero line.  
-hline(0,  "Zero line",  color.gray,  hline.style_dotted)  
-  
-// Plot the BOP value for each main context bar.  
-color  plotColor  =  reqValue  >=  0  ?  color.aqua  :  color.orange  
-plot(reqValue,  "BOP",  plotColor,  style  =  plot.style_columns)  
-  
-// Calculate the average BOP for most-recent values from the higher timeframe array, and display result in a table cell.  
-if  not  na(reqData)  
-//@variable Size of the `reqData` array returned from the higher timeframe.  
-int  dataSize  =  reqData.size()  
-//@variable A subset of the latest values from the `reqData` array. Its size is determined by the `avgLength` set.  
-array<float> lastValues  =  dataSize  >=  avgLength  ?  reqData.slice(dataSize  -  avgLength,  dataSize):  reqData  
-//@variable The average of the last `avgLength` BOP values.  
-float  avgBOP  =  lastValues.avg()  
-  
-// Display latest average value in a single-cell table.  
-var  table  displayTable  =  table.new(position.bottom_right,  1,  1,  color.purple)  
-displayTable.cell(0,  0,  "Avg of last "  +  str.tostring(avgLength) +  " BOPs: "  +  str.tostring(avgBOP,  "##.##") +  "%",  
-text_color  =  color.white)  
-``
+// Returns the calculated `bop` each bar, and a copy of the `dataArray` on the last bar or `na` otherwise.
+dataFunction() => 
+    //@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.
+    var array<float> dataArray = array.new<float>(0)
 
-#### [Return calculated  results](https://www.tradingview.com/pine-script-docs/error-messages/#return-calculated-results)
+    //@variable The "balance of power" percentage calculated for the current higher timeframe bar.
+    float bop = (close - open) / (high - low) * 100
+    dataArray.push(bop)
+
+    // Return the collection on the last bar only.
+    if barstate.islast
+        [bop, dataArray]
+    else 
+        [bop, na]
+
+// Request calculated BOP value, and BOPs array if on last bar, from the higher timeframe.
+[reqValue, reqData] = request.security(syminfo.tickerid, "1D", dataFunction())
+
+// Plot zero line.
+hline(0, "Zero line", color.gray, hline.style_dotted)
+
+// Plot the BOP value for each main context bar.
+color plotColor = reqValue >= 0 ? color.aqua : color.orange
+plot(reqValue, "BOP", plotColor, style = plot.style_columns)
+
+// Calculate the average BOP for most-recent values from the higher timeframe array, and display result in a table cell.
+if not na(reqData)
+    //@variable Size of the `reqData` array returned from the higher timeframe.
+    int dataSize = reqData.size()
+    //@variable A subset of the latest values from the `reqData` array. Its size is determined by the `avgLength` set.
+    array<float> lastValues = dataSize >= avgLength ? reqData.slice(dataSize - avgLength, dataSize): reqData
+    //@variable The average of the last `avgLength` BOP values.
+    float avgBOP = lastValues.avg()
+
+    // Display latest average value in a single-cell table.
+    var table displayTable = table.new(position.bottom_right, 1, 1, color.purple)
+    displayTable.cell(0, 0, "Avg of last " + str.tostring(avgLength) + " BOPs: " + str.tostring(avgBOP, "##.##") + "%", 
+         text_color = color.white)
+``` 
+
+#### Return calculated  results
 
 If a script needs the  _result_  of a calculation on a collection, but does not need the collection itself in the main context, use a  [user-defined function](https://www.tradingview.com/pine-script-docs/language/user-defined-functions/)  as the request expression. The function can calculate on the collection in the  _requested_  context and return only the result to the main context.
 
@@ -443,49 +383,47 @@ For example, we can calculate the average BOP directly within our request functi
 
 ![image](https://www.tradingview.com/pine-script-docs/_astro/Errors-Return-calculated-results.Do61vtAy_Z1MO38Y.webp)
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Return BOP results only", "Memory limit demo")
 
-Copied
+//@variable User-input length for calculating average of BOP values. 
+int avgLength = input.int(5, "Average BOP Length", minval = 1)
 
-``//@version=6  
-indicator("Return BOP results only",  "Memory limit demo")  
-  
-//@variable User-input length for calculating average of BOP values.  
-int  avgLength  =  input.int(5,  "Average BOP Length",  minval  =  1)  
-  
-// Returns the calculated `bop` and `avgBOP` values directly.  
-dataFunction() =>  
-//@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.  
-var  array<float> dataArray  =  array.new<float>(0)  
-  
-//@variable The "balance of power" percentage calculated for the current higher timeframe bar.  
-float  bop  = (close  -  open) / (high  -  low) *  100  
-dataArray.push(bop)  
-  
-// Calculate the average BOP for the `avgLength` most-recent values.  
-//@variable Size of the `dataArray`.  
-int  dataSize  =  dataArray.size()  
-//@variable A subset of the latest values from the `dataArray`. Its size is determined by the `avgLength` set.  
-array<float> lastValues  =  dataSize  >=  avgLength  ?  dataArray.slice(dataSize  -  avgLength,  dataSize):  dataArray  
-//@variable The average of the last `avgLength` BOP values.  
-float  avgBOP  =  lastValues.avg()  
-  
-//Return the calculated results.  
-[bop,  avgBOP]  
-  
-// Request BOP and average BOP values from the higher timeframe.  
-[reqValue,  reqAverage] =  request.security(syminfo.tickerid,  "1D",  dataFunction())  
-  
-// Plot zero line.  
-hline(0,  "Zero line",  color.gray,  hline.style_dotted)  
-  
-// Plot the BOP value and average line.  
-color  plotColor  =  reqValue  >=  0  ?  color.aqua  :  color.orange  
-plot(reqValue,  "BOP",  plotColor,  style  =  plot.style_columns)  
-plot(reqAverage,  "Avg",  color.purple,  linewidth  =  3)  
-``
+// Returns the calculated `bop` and `avgBOP` values directly.
+dataFunction() => 
+    //@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.
+    var array<float> dataArray = array.new<float>(0)
 
-#### [Return the collection on some  bars](https://www.tradingview.com/pine-script-docs/error-messages/#return-the-collection-on-some-bars)
+    //@variable The "balance of power" percentage calculated for the current higher timeframe bar.
+    float bop = (close - open) / (high - low) * 100
+    dataArray.push(bop)
+
+    // Calculate the average BOP for the `avgLength` most-recent values.
+    //@variable Size of the `dataArray`.
+    int dataSize = dataArray.size()
+    //@variable A subset of the latest values from the `dataArray`. Its size is determined by the `avgLength` set.
+    array<float> lastValues = dataSize >= avgLength ? dataArray.slice(dataSize - avgLength, dataSize): dataArray
+    //@variable The average of the last `avgLength` BOP values.
+    float avgBOP = lastValues.avg()
+
+    //Return the calculated results.
+    [bop, avgBOP]
+
+// Request BOP and average BOP values from the higher timeframe.
+[reqValue, reqAverage] = request.security(syminfo.tickerid, "1D", dataFunction())
+
+// Plot zero line.
+hline(0, "Zero line", color.gray, hline.style_dotted)
+
+// Plot the BOP value and average line.
+color plotColor = reqValue >= 0 ? color.aqua : color.orange
+plot(reqValue, "BOP", plotColor, style = plot.style_columns)
+plot(reqAverage, "Avg", color.purple, linewidth = 3)
+``` 
+
+#### Return the collection on some  bars
 
 If a script needs to retrieve a collection in the main context, but  _not_  on  _every bar_, use  [conditional structures](https://www.tradingview.com/pine-script-docs/language/conditional-structures/)  or expressions that return collection references only the necessary bars, and  [na](https://www.tradingview.com/pine-script-reference/v6/#var_na)  on other bars. The logic in the main context can then handle the  [na](https://www.tradingview.com/pine-script-reference/v6/#var_na)  gaps in the series and perform necessary actions on the reduced collections.
 
@@ -493,59 +431,57 @@ For example, if we want to calculate the average BOP for each  _month_  instead 
 
 ![image](https://www.tradingview.com/pine-script-docs/_astro/Errors-Return-the-collection-on-some-bars.CQvTHovc_iqEih.webp)
 
-[Pine Script®](https://tradingview.com/pine-script-docs)
+### Code Example
+```pine
+//@version=6
+indicator("Monthly BOP array", "Memory limit demo")
 
-Copied
+// Returns the calculated `bop`, and a copy of the `dataArray` on a month's first trading day only, or `na` otherwise.
+dataFunction() => 
+    //@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.
+    var array<float> dataArray = array.new<float>(0)
 
-``//@version=6  
-indicator("Monthly BOP array",  "Memory limit demo")  
-  
-// Returns the calculated `bop`, and a copy of the `dataArray` on a month's first trading day only, or `na` otherwise.  
-dataFunction() =>  
-//@variable Persistent array containing the "balance of power" (BOP) values for all higher timeframe bars.  
-var  array<float> dataArray  =  array.new<float>(0)  
-  
-// When a new month starts, return monthly data array to calculate average BOP for completed month.  
-//@variable Array is `na` except on first trading day of each month, when it contains completed month's BOP values.  
-array<float> returnArray  =  na  
-//@variable Is `true` on the first bar of each month, `false` otherwise.  
-bool  isNewMonth  =  timeframe.change("1M")  
-if  isNewMonth  
-returnArray  :=  dataArray  
-//Clear persistent array to start storing new month's data.  
-if  isNewMonth[1]  
-dataArray.clear()  
-  
-//@variable The "balance of power" percentage calculated for the current higher timeframe bar.  
-float  bop  = (close  -  open) / (high  -  low) *  100  
-dataArray.push(bop)  
-  
-//Return the calculated result and the `returnArray`.  
-[bop,  returnArray]  
-  
-// Request BOP data from the higher timeframe. (Returns calculated BOP and array of BOP values if new month starts)  
-[reqValue,  reqData] =  request.security(syminfo.tickerid,  "1D",  dataFunction())  
-  
-// Calculate the average BOP for the most-recent completed month.  
-//@variable Persistent array that holds the BOP values for the most-recent completed month.  
-var  array<float> completedMonthBOPs  =  array.new<float>(0)  
-// If new month starts (i.e., `reqData` is not returned as `na`), then `completedMonthBOPs` is updated with new values.  
-// Otherwise, it persists the last valid values for the rest of the month to adjust for `na` gaps.  
-completedMonthBOPs  :=  na(reqData) ?  completedMonthBOPs  :  reqData  
-//@variable The average BOP for the most-recent completed month.  
-float  avgBOP  =  completedMonthBOPs.avg()  
-  
-// Plot the BOP value and average line.  
-color  plotColor  =  reqValue  >=  0  ?  color.aqua  :  color.orange  
-plot(reqValue,  "BOP",  plotColor,  style  =  plot.style_columns)  
-plot(avgBOP,  "Avg",  color.purple,  linewidth  =  3)  
-``
+    // When a new month starts, return monthly data array to calculate average BOP for completed month.
+    //@variable Array is `na` except on first trading day of each month, when it contains completed month's BOP values. 
+    array<float> returnArray = na
+    //@variable Is `true` on the first bar of each month, `false` otherwise.
+    bool isNewMonth = timeframe.change("1M")
+    if isNewMonth
+        returnArray := dataArray
+    //Clear persistent array to start storing new month's data.
+    if isNewMonth[1]
+        dataArray.clear()
 
-### [Other possible error sources and their  fixes](https://www.tradingview.com/pine-script-docs/error-messages/#other-possible-error-sources-and-their-fixes)
+    //@variable The "balance of power" percentage calculated for the current higher timeframe bar.
+    float bop = (close - open) / (high - low) * 100
+    dataArray.push(bop)
+
+    //Return the calculated result and the `returnArray`.
+    [bop, returnArray]
+
+// Request BOP data from the higher timeframe. (Returns calculated BOP and array of BOP values if new month starts)
+[reqValue, reqData] = request.security(syminfo.tickerid, "1D", dataFunction())
+
+// Calculate the average BOP for the most-recent completed month.
+//@variable Persistent array that holds the BOP values for the most-recent completed month.
+var array<float> completedMonthBOPs = array.new<float>(0)
+// If new month starts (i.e., `reqData` is not returned as `na`), then `completedMonthBOPs` is updated with new values.
+// Otherwise, it persists the last valid values for the rest of the month to adjust for `na` gaps.
+completedMonthBOPs := na(reqData) ? completedMonthBOPs : reqData
+//@variable The average BOP for the most-recent completed month.
+float avgBOP = completedMonthBOPs.avg()
+
+// Plot the BOP value and average line.
+color plotColor = reqValue >= 0 ? color.aqua : color.orange
+plot(reqValue, "BOP", plotColor, style = plot.style_columns)
+plot(avgBOP, "Avg", color.purple, linewidth = 3)
+``` 
+
+### Other possible error sources and their  fixes
 
 There are a few other ways to optimize scripts to consume less memory.
 
-#### [Minimize ​`request.*()`​ calls](https://www.tradingview.com/pine-script-docs/error-messages/#minimize-request-calls)
+#### Minimize ​`request.*()`​ calls
 
 The  `request.*()`  functions can be computationally expensive to call, because they retrieve data from additional datasets. Data requests often require significant usage of runtime and memory resources. Excessive or inefficient requests can easily cause scripts to reach the memory limit.
 
@@ -578,19 +514,19 @@ Specifying a  `calc_bars_count`  argument in the  [indicator()](https://www.trad
 
 To learn more about historical buffer calculations and how to optimize them, see the  [Minimizing historical buffer calculations](https://www.tradingview.com/pine-script-docs/writing/profiling-and-optimization/#minimizing-historical-buffer-calculations)  section of the  [Profiling and optimization](https://www.tradingview.com/pine-script-docs/writing/profiling-and-optimization/)  page.
 
-#### [Reduce drawing updates for  tables](https://www.tradingview.com/pine-script-docs/error-messages/#reduce-drawing-updates-for-tables)
+#### Reduce drawing updates for  tables
 
 [Tables](https://www.tradingview.com/pine-script-docs/visuals/tables/)  only display their  _last state_  on a chart. Any updates to a table on historical bars are redundant, because they are not visible. To use the least memory, draw the table  _once_, and fill it on the last bar.
 
 To create a table object only once, assign the result of the  [table.new()](https://www.tradingview.com/pine-script-reference/v6/#fun_table.new)  call to a variable declared with the  [var](https://www.tradingview.com/pine-script-reference/v6/#kw_var)  keyword. When using  [table.cell()](https://www.tradingview.com/pine-script-reference/v6/#fun_table.cell)  or the available setter functions to modify the table’s contents, execute those function calls only on the  _last_  available bar — where the table’s latest state is visible — by placing the calls in a  [conditional structure](https://www.tradingview.com/pine-script-docs/language/conditional-structures/)  that uses  [barstate.islast](https://www.tradingview.com/pine-script-reference/v6/#var_barstate.islast)  as the condition. See the  [Tables](https://www.tradingview.com/pine-script-docs/visuals/tables/)  page to learn more.
 
-#### [Do not update drawings on historical  bars](https://www.tradingview.com/pine-script-docs/error-messages/#do-not-update-drawings-on-historical-bars)
+#### Do not update drawings on historical  bars
 
 Similar to tables, any updates to other drawing objects such as  [lines](https://www.tradingview.com/pine-script-docs/visuals/lines-and-boxes/#lines)  and  [labels](https://www.tradingview.com/pine-script-docs/visuals/text-and-shapes/#labels)  on historical bars are never visible to the user. The user sees only the drawing updates executed on  _realtime_  bars.
 
 Eliminate updates to historical drawings during executions on historical bars wherever possible. Refer to the  [Reducing drawing updates](https://www.tradingview.com/pine-script-docs/writing/profiling-and-optimization/#reducing-drawing-updates)  section of the  [Profiling and optimization](https://www.tradingview.com/pine-script-docs/writing/profiling-and-optimization/)  page for more information.
 
-#### [Minimize total drawings stored for a  chart](https://www.tradingview.com/pine-script-docs/error-messages/#minimize-total-drawings-stored-for-a-chart)
+#### Minimize total drawings stored for a  chart
 
 [Drawing objects](https://www.tradingview.com/pine-script-docs/language/type-system/#drawing-types)  such as  [lines](https://www.tradingview.com/pine-script-docs/visuals/lines-and-boxes/#lines)  and  [labels](https://www.tradingview.com/pine-script-docs/visuals/text-and-shapes/#labels)  can consume a lot of memory, especially if a script  _recreates_  drawings unnecessarily.
 
@@ -605,7 +541,7 @@ Look for ways to optimize drawing objects in a script:
 -   Reduce a script’s drawing limits by specifying values for the  `max_lines_count`,  `max_labels_count`,  `max_boxes_count`, or  `max_polylines_count`  parameters of the  [indicator()](https://www.tradingview.com/pine-script-reference/v6/#fun_indicator)  or  [strategy()](https://www.tradingview.com/pine-script-reference/v6/#fun_strategy)  declaration statement.
     
 
-#### [Filter dates in  strategies](https://www.tradingview.com/pine-script-docs/error-messages/#filter-dates-in-strategies)
+#### Filter dates in  strategies
 
 The total number of trades or orders simulated by  [strategies](https://www.tradingview.com/pine-script-docs/concepts/strategies/)  can impact memory consumption. When running strategy scripts that generate frequent orders on large datasets, reduce the number of unnecessary historical orders stored in memory by limiting the  _starting point_  of your strategy.
 
