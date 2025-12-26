@@ -1,5 +1,55 @@
 # Release notes
 
+### December  2025
+
+#### Updated line  wrapping
+
+Scripts now have improved line wrapping behavior. Previously, all multiline text representing a  _single line_  of code required indenting each line after the first by any number of spaces that was  _not_  a multiple of four, because Pine reserved four-space indentation for local code blocks.
+
+We’ve removed the indentation restriction for all parts of an expression or statement enclosed in  _parentheses_, including operations, function calls, and function parameter declarations. Scripts can now indent wrapped lines enclosed in parentheses by  _zero or more_  spaces, including multiples of four. For example:
+
+### Code Example
+```pine
+//@version=6
+
+// Before the update, wrapped lines in this code that start at multiples of four spaces caused compilation errors.
+
+indicator(
+    "Line wrapping between parentheses demo", // Indented by four spaces.
+        overlay = true                        // Indented by eight spaces.
+)                                             // No indentation.
+
+float median = 0.5 * (
+    ta.highest(20) + ta.lowest(20) // Indented by four spaces.
+)                                  // No indentation.
+
+plot(
+median,              // No indentation.
+  "Median",          // Indented by two spaces.
+   chart.fg_color,   // Indented by three spaces.
+    3                // Indented by four spaces.
+)                    // No indentation.
+```
+However, if a line-wrapped expression is not enclosed in parentheses, all subsequent lines still require an indentation that is not a multiple of four spaces. For example:
+
+### Code Example
+```pine
+//@version=6
+indicator("Invalid line wrap demo", overlay = true)
+
+// The second line that starts with `*` in this wrapped expression causes a compilation error.
+// For the script to compile successfully, do any of the following:
+// - Move that part of the expression to line 9.
+// - Add another leading space to line 10 so that it doesn't start after a multiple of four spaces.
+// - Enclose the entire expression in another set of parentheses. 
+float median = 0.5 
+    * ( 
+    ta.highest(20) + ta.lowest(20)
+)
+
+plot(median)
+```
+
 ## November 2025 
 
 We’ve added a new variable, syminfo.isin, which holds a string containing the 12-character International Securities Identification Number (ISIN) for the security represented by the symbol, or an empty string if no ISIN is available. An ISIN uniquely identifies a security globally and does not vary across exchanges, unlike ticker symbols. As such, programmers can use this variable to identify a symbol’s underlying stock or other instrument, regardless of the name listed by an exchange. For example:
@@ -68,3 +118,4 @@ plot(offsetTime2, "`bars_back` + `timeframe_bars_back`", color.purple)
 // Log formatted timestamps in the Pine Logs pane.
 log.info("\n{0}\n{1}\n{2}", str.format_time(monthTime), str.format_time(offsetTime1), str.format_time(offsetTime2))
 ```
+
