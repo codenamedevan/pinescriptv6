@@ -136,6 +136,10 @@ plot(f)
 
 ---
 
+## footprint
+A keyword that explicitly declares the type of a variable or parameter as footprint. Scripts create objects of the footprint type by calling the request.footprint() function. Scripts can use IDs of this type with the built-in footprint.*() functions to retrieve volume footprint data, including footprint rows, categorized volume sums, and volume delta.
+
+
 ## int
 
 Keyword used to explicitly declare the "int" (integer) type of a variable or a parameter.
