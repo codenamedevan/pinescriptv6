@@ -1,5 +1,67 @@
 # Release notes
 
+### January 2026
+
+Footprint requests
+We’ve added a new request.footprint() function and two new data types, footprint and volume_row. These features enable scripts to retrieve and work with volume footprint data for a chart’s dataset:
+
+The _request.footprint()_ function requests volume footprint information for the current bar. It returns either the reference (ID) of a footprint object, or na if no footprint data is available for the bar.
+A footprint object contains the available volume footprint data retrieved for a specific bar. Scripts can use IDs of this type with the new footprint.*() functions to retrieve a bar’s overall footprint information, such as its total “buy” or “sell” volume and overall volume delta, or to retrieve volume_row IDs for individual rows within the footprint, including those for the bar’s Point of Control (POC) and Value Area (VA) boundaries.
+A volume_row object contains data for a specific footprint row. Scripts can use IDs of this type with the new volume_row.*() functions to retrieve a footprint row’s information, including its price levels, volume values, volume delta, and imbalances.
+Programmers who have a Premium or Ultimate plan can use these features to create scripts that analyze volume footprint information across bars or perform custom footprint-based calculations. For example:
+
+```pine
+//@version=6
+indicator("Footprint requests demo", overlay = true, behind_chart = false, max_labels_count = 50)
+
+//@variable The number of ticks to use as the price interval for each footprint row.
+int numTicksInput = input.int(100, "Ticks per footprint row", minval = 1) 
+//@variable The percentage of each footprint's total volume to use for calculating the Value Area (VA).
+int vaInput = input.int(70, "Value Area percentage", minval = 1)
+
+//@variable References a `footprint` object for the current bar, or holds `na` if no footprint data is available.
+footprint reqFootprint = request.footprint(numTicksInput, vaInput)
+
+// If footprint data is available for the bar, retrieve overall and row-wise information for the footprint.
+[vaUpper, vaLower, pocUpper, pocLower] = if not na(reqFootprint)
+    // Retrieve bar's total buy volume, sell volume, and volume delta from `footprint` object referenced by `reqFootprint`.
+    // These `footprint.*()` functions return "float" volume values.
+    float buyVolume   = reqFootprint.buy_volume()
+    float sellVolume  = reqFootprint.sell_volume()
+    float deltaVolume = reqFootprint.delta()
+
+    // Get Value Area High (VAH), Value Area Low (VAL), and Point of Control (POC) row IDs from the `footprint` object.
+    // These `footprint.*()` functions return IDs of `volume_row` objects containing data for the specific rows.
+    volume_row vahRow = reqFootprint.vah()
+    volume_row valRow = reqFootprint.val()
+    volume_row pocRow = reqFootprint.poc()
+
+    // Retrieve upper and lower price boundaries of VAH, VAL, and POC rows from `volume_row` objects.
+    // These `volume_row.*()` functions return "float" price values.
+    float vahUpperPrice = vahRow.up_price()
+    float valLowerPrice = valRow.down_price()
+    float pocUpperPrice = pocRow.up_price()
+    float pocLowerPrice = pocRow.down_price()
+
+    // Draw a label on each bar to show the footprint's volume and price levels as formatted text.
+    string footprintInfo = str.format(
+        "Total buy volume: {0}\nTotal sell volume: {1}\nVolume delta: {2}\n---\nPOC range: {3}–{4}\nVA range: {5}–{6}", 
+        buyVolume, sellVolume, deltaVolume, pocLowerPrice, pocUpperPrice, valLowerPrice, vahUpperPrice
+    )
+    label.new(bar_index, high, text = footprintInfo, yloc = yloc.abovebar, size = 10)
+
+    // Return VA and POC price boundaries to the variables in the tuple declaration.
+    [vahUpperPrice, valLowerPrice, pocUpperPrice, pocLowerPrice] 
+
+// Plot footprint row price boundaries to visualize VA and POC range of each bar. Hidden if requested footprint is `na`. 
+plot(vaUpper,  "VAH upper", color.navy,    3, plot.style_stepline, linestyle = plot.linestyle_dotted)
+plot(vaLower,  "VAL lower", color.blue,    3, plot.style_stepline, linestyle = plot.linestyle_dotted)
+plot(pocUpper, "POC upper", color.purple,  4, plot.style_stepline)
+plot(pocLower, "POC lower", color.fuchsia, 4, plot.style_stepline)
+```
+
+See the request.footprint() section of the Other timeframes and data page to learn more about footprint requests. For more information about the footprint and volume_row types and the functions in their namespaces, refer to the footprint and volume_row section of the Type system page.
+
 ### December  2025
 
 #### Updated line  wrapping
