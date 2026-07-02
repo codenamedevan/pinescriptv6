@@ -92,3 +92,10 @@ new syntax after this skill was packaged, treat any file here as
 possibly-stale rather than infallible — cross-check against the current
 official TradingView Pine Script v6 reference when something looks off or
 missing, and prefer the newer, verified behavior.
+
+**Note for maintainers:** everything in this directory except `SKILL.md` is
+generated from the canonical root-level docs by `scripts/sync-bundles.sh` —
+do not hand-edit it. Edit the root `concepts/`, `reference/`, `visuals/`,
+`writing_scripts/`, `release_notes.md`, `pine_script_execution_model.md`, or
+`LLM_MANIFEST.md`, then re-run the sync script (or just commit — the
+pre-commit hook runs it for you).

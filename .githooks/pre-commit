@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Regenerates skills/pinescript-v6/ and agents/pinescript-developer/ from the
+# canonical root-level docs before every commit, so bundled copies can never
+# silently drift out of sync. Enable once per clone with:
+#   git config core.hooksPath .githooks
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+"$repo_root/scripts/sync-bundles.sh"
+git -C "$repo_root" add skills/pinescript-v6 agents/pinescript-developer

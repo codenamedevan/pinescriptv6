@@ -79,8 +79,8 @@ If you use AI-native editors like Cursor or Windsurf:
 ## 📂 Repository Structure
 
 * **[.claude-plugin/](https://github.com/jabez4jc/pinescriptv6/tree/main/.claude-plugin)**: `plugin.json` + `marketplace.json` — makes this repo installable as a Claude Code plugin (Option 1 above).
-* **[skills/pinescript-v6/](https://github.com/jabez4jc/pinescriptv6/tree/main/skills/pinescript-v6)**: The Claude Code skill that routes Pine Script requests to the right reference file.
-* **[agents/pinescript-developer.md](https://github.com/jabez4jc/pinescriptv6/blob/main/agents/pinescript-developer.md)**: The `pinescript-developer` subagent definition.
+* **[skills/pinescript-v6/](https://github.com/jabez4jc/pinescriptv6/tree/main/skills/pinescript-v6)**: The Claude Code skill that routes Pine Script requests to the right reference file. Self-contained — bundles its own copy of the docs so it works if copied out on its own.
+* **[agents/pinescript-developer.md](https://github.com/jabez4jc/pinescriptv6/blob/main/agents/pinescript-developer.md)** + **[agents/pinescript-developer/](https://github.com/jabez4jc/pinescriptv6/tree/main/agents/pinescript-developer)**: The `pinescript-developer` subagent definition and its bundled reference copy — also self-contained; copy both together.
 * **[LLM_MANIFEST.md](https://github.com/jabez4jc/pinescriptv6/blob/main/LLM_MANIFEST.md)**: The master index. Start here.
 * **[concepts/](https://github.com/jabez4jc/pinescriptv6/tree/main/concepts)**: Explanations of how the Pine engine works (Execution model, Timeframes).
 * **[reference/](https://github.com/jabez4jc/pinescriptv6/tree/main/reference)**: The strict API dictionary.
@@ -107,6 +107,30 @@ If you are building a Custom GPT or setting up a Project, use this prompt:
 > 3. Ensure all scripts start with `//@version=6`.
 > 4. If I ask for a Strategy, strictly check [reference/functions/strategy.md](https://github.com/jabez4jc/pinescriptv6/blob/main/reference/functions/strategy.md) for the latest order placement syntax.
 > 5. If I ask for complex visuals, check [reference/functions/drawing.md](https://github.com/jabez4jc/pinescriptv6/blob/main/reference/functions/drawing.md) for `polyline` and `box` capabilities.
+
+---
+
+## 🔄 Maintaining the Bundles (contributors)
+
+The root-level `concepts/`, `reference/`, `visuals/`, `writing_scripts/`,
+`release_notes.md`, `pine_script_execution_model.md`, and `LLM_MANIFEST.md`
+are the **single canonical source**. The copies inside `skills/pinescript-v6/`
+and `agents/pinescript-developer/` are generated from them — never hand-edit
+those copies directly, edits will be overwritten.
+
+1. Edit the canonical root files.
+2. Regenerate the bundles: `./scripts/sync-bundles.sh`
+3. Commit everything together.
+
+To avoid forgetting step 2, enable the provided pre-commit hook once per clone:
+```
+git config core.hooksPath .githooks
+```
+It re-runs the sync script and stages the regenerated bundles automatically
+on every commit. As a backstop, [`.github/workflows/verify-bundle-sync.yml`](https://github.com/jabez4jc/pinescriptv6/blob/main/.github/workflows/verify-bundle-sync.yml)
+re-runs the same script in CI and fails the build if any bundle is out of
+sync with the canonical docs — so drift can't land on `main` even if the hook
+was skipped or bypassed.
 
 ---
 
