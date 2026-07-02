@@ -1,25 +1,27 @@
 ---
 name: pinescript-v6
-description: Write, review, debug, or explain TradingView Pine Script v6 code (indicators, strategies, libraries). Triggers on Pine Script, //@version=6, ta.*, strategy.*, request.security, plot/line/box/label drawing, repainting, or TradingView publishing questions. Routes to the chunked reference docs in this repo instead of relying on training-data recall, which is frequently stale v4/v5 syntax.
+description: Write, review, debug, or explain TradingView Pine Script v6 code (indicators, strategies, libraries). Triggers on Pine Script, //@version=6, ta.*, strategy.*, request.security, plot/line/box/label drawing, repainting, or TradingView publishing questions. Bundles a chunked v6 reference so answers come from verified docs instead of training-data recall, which is frequently stale v4/v5 syntax.
 ---
 
-# Pine Script v6 (this repo as reference)
+# Pine Script v6
 
-This repository *is* the reference manual, restructured for retrieval instead of
-one giant dump. Treat `LLM_MANIFEST.md` at the repo root as the index. Never
-answer a nontrivial Pine Script question from memory alone — look the function
-or concept up first. Training data over-represents Pine v4/v5; unverified
-recall reliably produces deprecated syntax (`study()`, `security()`,
+This skill bundles a chunked TradingView Pine Script v6 reference manual
+alongside it (in the same directory as this file). Treat `MANIFEST.md` next
+to this file as the index. Never answer a nontrivial Pine Script question
+from memory alone — look the function or concept up in the bundled files
+first. Training data over-represents Pine v4/v5; unverified recall reliably
+produces deprecated syntax (`study()`, bare `security()`,
 `strategy.risk.max_position_size` misuse, old `input()` forms, etc.).
+
+All paths below are relative to this skill's own directory.
 
 ## Protocol
 
 1. **Identify intent** — what is the user building or debugging (indicator,
    strategy, library, visual, execution-order question, publishing question)?
-2. **Route via the manifest** — open `LLM_MANIFEST.md` and follow its routing
-   table to the specific file(s). Read only what's needed; these files are
-   large (200-400KB for the two "complete reference" files) and are meant to
-   be consulted in slices, not loaded whole.
+2. **Route via the manifest** — open `MANIFEST.md` and follow its routing
+   table to the specific file(s). Read only what's needed; some files are
+   large and meant to be consulted in slices, not loaded whole.
 3. **Retrieve before writing code.** Confirm the exact function signature,
    argument names, and return type in the reference file before using it.
 4. **Enforce `//@version=6`** on every script produced or modified.
@@ -30,7 +32,7 @@ recall reliably produces deprecated syntax (`study()`, `security()`,
 
 | Need | File(s) |
 |---|---|
-| Master index / routing table | `LLM_MANIFEST.md` |
+| Master index / routing table | `MANIFEST.md` |
 | Recent v6 additions (`request.footprint`, `syminfo.isin`, `timeframe_bars_back`, line-wrapping) | `release_notes.md` |
 | Bar-by-bar execution, `var`/`varip`, historical vs realtime | `concepts/execution_model.md`, `pine_script_execution_model.md` |
 | Multi-timeframe data, repainting | `concepts/timeframes.md` |
@@ -54,9 +56,8 @@ recall reliably produces deprecated syntax (`study()`, `security()`,
 | Debugging techniques | `writing_scripts/debugging.md` |
 | Performance/profiling, `max_bars_back` limits | `writing_scripts/profiling_and_optimization.md`, `writing_scripts/limitations.md` |
 | Publishing (house rules, visibility types, vendor/paid scripts, BBCode) | `writing_scripts/publishing_guidelines.md`, `writing_scripts/publishing_scripts.md` |
-| Full single-file dump (last resort, only for grep) | `pinescriptv6_complete_reference.md`, `Pine Script language reference manual` |
 
-`visuals/` is not yet cross-referenced in `LLM_MANIFEST.md` — use it directly
+`visuals/` is not cross-referenced from `MANIFEST.md` itself — use it directly
 for any drawing/plotting/visual-styling question.
 
 ## Routing examples
@@ -83,3 +84,11 @@ for any drawing/plotting/visual-styling question.
 - When touching strategy code, verify order-placement syntax against
   `reference/functions/strategy.md` — this is the area most likely to still
   contain v4/v5 habits (e.g., old `strategy.risk.*` calls).
+
+## Keeping this skill current
+
+The bundled reference files are a point-in-time copy. If Pine Script v6 gains
+new syntax after this skill was packaged, treat any file here as
+possibly-stale rather than infallible — cross-check against the current
+official TradingView Pine Script v6 reference when something looks off or
+missing, and prefer the newer, verified behavior.
