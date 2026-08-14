@@ -1,0 +1,33 @@
+name: Verify bundle sync
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps and smoke-test the CLI
+        run: |
+          npm ci
+          npm test
+
+      - name: Re-run sync-bundles.sh
+        run: ./scripts/sync-bundles.sh
+
+      - name: Fail if bundles drifted from canonical docs
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::skills/pinescript-v6/ and/or agents/pinescript-developer/ are out of sync with the canonical root-level docs."
+            echo "Run ./scripts/sync-bundles.sh and commit the result (or enable the pre-commit hook: git config core.hooksPath .githooks)."
+            git diff --stat
+            exit 1
+          fi

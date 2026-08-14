@@ -1148,6 +1148,17 @@ A sector is a broad section of the economy. An industry is a narrower classifica
 
 ---
 
+## syminfo.isin
+
+**Type:** simple string
+
+Holds a string representing the symbol's International Securities Identification Number (ISIN), or an empty string if no ISIN information is available. The ISIN is a 12-character code that identifies a security globally and does not vary across exchanges.
+
+### Remarks
+Programmers can use `syminfo.isin` to identify an underlying instrument regardless of exchange-specific ticker naming. For example, `NASDAQ:AAPL` and `GETTEX:APC` share the same ISIN because they refer to the same Apple common stock.
+
+---
+
 ## syminfo.main_tickerid
 
 **Type:** simple string
@@ -8857,6 +8868,34 @@ plot(f)
 
 ---
 
+## request.footprint()
+
+Requests the ID of a footprint object that contains volume footprint data for the current chart bar.
+
+### Returns
+The ID of a `footprint` object, or `na` if no footprint data is available.
+
+### Remarks
+Scripts can use the returned ID with `footprint.*()` functions to retrieve footprint-wide values such as buy volume, sell volume, delta, and special rows such as `poc()`, `vah()`, and `val()`. Scripts can then use the returned `volume_row` IDs with `volume_row.*()` functions to inspect row boundaries and imbalance information.
+
+Only accounts with Premium or Ultimate plans can use scripts that call this function.
+
+A single script cannot include more than one `request.footprint()` call.
+
+### Code Example
+```pine
+//@version=6
+indicator("Footprint summary", overlay = true)
+
+footprint fp = request.footprint(100, 70)
+
+if not na(fp)
+    volume_row pocRow = fp.poc()
+    label.new(bar_index, high, str.format("Delta: {0}\nPOC: {1}", fp.delta(), pocRow.up_price()))
+```
+
+---
+
 ## request.quandl()
 
 Note: This function has been deprecated due to the API change from NASDAQ Data Link. Requests for "QUANDL" symbols are no longer valid and requests for them return a runtime error.
@@ -12539,13 +12578,18 @@ plot(standardChartValue, color = color.green)
 
 ## time()
 
-The time function returns the UNIX time of the current bar for the specified timeframe and session or NaN if the time point is out of session.
+The time function returns the UNIX time of the bar open for the specified timeframe, session, and timezone, or na if the time point is out of session.
 
 ### Returns
 UNIX time.
 
 ### Remarks
 UNIX time is the number of milliseconds that have elapsed since 00:00:00 UTC, 1 January 1970.
+
+The function also supports a `timeframe_bars_back` parameter. Unlike `bars_back`, which offsets on the script's main timeframe, `timeframe_bars_back` offsets on the requested timeframe itself. If both parameters are present, Pine applies `bars_back` first and then applies `timeframe_bars_back`.
+
+### Signatures
+`time(timeframe, session, timezone, bars_back, timeframe_bars_back) → series int`
 
 ### Code Example
 ```pine
@@ -12568,6 +12612,10 @@ bgcolor(not na(t1) ? color.new(color.blue, 90) : na)
 indicator("Time", overlay=true)
 t1 = time(timeframe.period, "1000-1100,1400-1500:23456")
 bgcolor(not na(t1) ? color.new(color.blue, 90) : na)
+
+//@version=6
+indicator("`timeframe_bars_back` demo")
+plot(time("1M", bars_back = 10, timeframe_bars_back = 3))
 ```
 
 ---
@@ -12582,12 +12630,21 @@ UNIX time.
 ### Remarks
 UNIX time is the number of milliseconds that have elapsed since 00:00:00 UTC, 1 January 1970.
 
+The function also supports a `timeframe_bars_back` parameter. Unlike `bars_back`, which offsets on the script's main timeframe, `timeframe_bars_back` offsets on the requested timeframe itself. If both parameters are present, Pine applies `bars_back` first and then applies `timeframe_bars_back`.
+
+### Signatures
+`time_close(timeframe, session, timezone, bars_back, timeframe_bars_back) → series int`
+
 ### Code Example
 ```pine
 //@version=6
 indicator("Time", overlay=true)
 t1 = time_close(timeframe.period, "1200-1300", "America/New_York")
 bgcolor(not na(t1) ? color.new(color.blue, 90) : na)
+
+//@version=6
+indicator("`time_close()` `timeframe_bars_back` demo")
+plot(time_close("1M", bars_back = 10, timeframe_bars_back = 3))
 ```
 
 ---
@@ -13324,6 +13381,24 @@ float f = 3.14    // Same as `f = 3.14`
 f := na
 plot(f)
 ```
+
+---
+
+## footprint
+
+Keyword used to explicitly declare the `footprint` type of a variable or parameter. Scripts create objects of this type by calling `request.footprint()`.
+
+### Remarks
+Scripts can use `footprint` IDs with `footprint.*()` functions to retrieve volume footprint totals, delta values, and row references such as `poc()`, `vah()`, and `val()`.
+
+---
+
+## volume_row
+
+Keyword used to explicitly declare the `volume_row` type of a variable or parameter. Scripts obtain objects of this type from `footprint` instances.
+
+### Remarks
+Scripts can use `volume_row` IDs with `volume_row.*()` functions to retrieve row price boundaries and detect buy or sell imbalances for individual footprint rows.
 
 ---
 

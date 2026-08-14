@@ -1,0 +1,10 @@
+{
+  "name": "pinescript-v6",
+  "version": "1.0.0",
+  "description": "Pine Script v6 chunked reference docs, a routing skill, and a pinescript-developer agent for writing, reviewing, and debugging TradingView Pine Script v6 code.",
+  "author": {
+    "name": "Jabez Vettriselvan"
+  },
+  "homepage": "https://github.com/jabez4jc/pinescriptv6",
+  "keywords": ["pinescript", "tradingview", "trading", "indicators", "strategies"]
+}

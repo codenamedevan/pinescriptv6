@@ -1,0 +1,48 @@
+{
+  "name": "pinescript-v6",
+  "version": "1.0.0",
+  "description": "Chunked TradingView Pine Script v6 reference for LLM agents, plus a global installer and an MCP server.",
+  "type": "module",
+  "bin": {
+    "pinescript-v6": "bin/cli.mjs"
+  },
+  "scripts": {
+    "prepack": "./scripts/sync-bundles.sh",
+    "test": "./tests/test-cli.sh"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.0"
+  },
+  "files": [
+    "bin",
+    "agents",
+    "skills",
+    "concepts",
+    "reference",
+    "visuals",
+    "writing_scripts",
+    "LLM_MANIFEST.md",
+    "release_notes.md",
+    "pine_script_execution_model.md",
+    "pinescriptv6_complete_reference.md",
+    ".claude-plugin"
+  ],
+  "keywords": [
+    "pinescript",
+    "tradingview",
+    "mcp",
+    "claude",
+    "codex",
+    "llm"
+  ],
+  "homepage": "https://github.com/jabez4jc/pinescriptv6",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jabez4jc/pinescriptv6.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
