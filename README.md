@@ -30,7 +30,38 @@ On top of the raw docs, the repo also ships as a **Claude Code plugin** — a `p
 
 ## 👨‍💻 For Humans: How to use this Repo
 
-### Option 1: Claude Code Plugin (recommended for Claude Code users)
+### Option 1: Global install for any agent (recommended)
+One command, no clone, works on any machine with Node 18+:
+
+```bash
+npx pinescript-v6 install
+```
+
+This copies the reference to `~/.pinescript-v6` and wires it into every agent that reads files:
+
+| Agent | What it gets |
+|---|---|
+| Claude Code | `~/.claude/skills/pinescript-v6/` (skill) + `~/.claude/agents/pinescript-developer` (subagent), available in every project |
+| Codex | a managed block in `~/.codex/AGENTS.md` pointing at the docs |
+| Cursor / Windsurf | `~/.cursor/rules/pinescript-v6.md` |
+| Anything else reading a global `AGENTS.md` | `~/.config/AGENTS.md` |
+
+Existing content in those instruction files is preserved — only the block between
+`<!-- BEGIN pinescript-v6 -->` and `<!-- END pinescript-v6 -->` is managed, and
+re-running the installer updates it in place. `npx pinescript-v6 uninstall` removes everything.
+
+**MCP (for agents that prefer tools over files):**
+
+```bash
+claude mcp add -s user pinescript-v6 -- npx -y pinescript-v6 mcp
+codex  mcp add     pinescript-v6 -- npx -y pinescript-v6 mcp
+```
+
+Any other MCP client: `{"command": "npx", "args": ["-y", "pinescript-v6", "mcp"]}`.
+The server exposes three tools — `pinescript_manifest` (routing table, call first),
+`pinescript_doc` (read one reference file), `pinescript_search` (grep the reference).
+
+### Option 2: Claude Code Plugin
 This repo is self-hosting as a plugin marketplace, so no separate marketplace repo is needed.
 
 ```
@@ -47,7 +78,7 @@ To try it locally before pushing changes, point the marketplace at a local path 
 /plugin marketplace add /path/to/your/local/pinescriptv6
 ```
 
-### Option 2: AI Code Editors (Cursor, Windsurf, Copilot)
+### Option 3: AI Code Editors, manual setup (Cursor, Windsurf, Copilot)
 If you use AI-native editors like Cursor or Windsurf:
 1. Clone this repository locally.
 2. In your chat interface, reference specific documentation based on what you are building.
@@ -55,7 +86,7 @@ If you use AI-native editors like Cursor or Windsurf:
    * *Building a strategy?* Reference [@functions/strategy.md](https://github.com/jabez4jc/pinescriptv6/blob/main/reference/functions/strategy.md).
    * *Getting errors?* Reference @concepts/common_errors.md.
 
-### Option 3: Claude Projects / Custom GPTs
+### Option 4: Claude Projects / Custom GPTs
 1. Download this repository as a ZIP.
 2. Upload the relevant files to your **[Claude Project Knowledge](https://support.claude.com/en/articles/9517075-what-are-projects)** ([YouTube Help Here](https://www.youtube.com/watch?v=GJ5jTgcbRHA)) or **[Custom GPT Knowledge](https://help.openai.com/en/articles/8843948-knowledge-in-gpts)**.
 3. *Recommendation:* Upload [LLM_MANIFEST.md](https://github.com/jabez4jc/pinescriptv6/blob/main/LLM_MANIFEST.md) and the specific [reference/](https://github.com/jabez4jc/pinescriptv6/tree/main/reference) folders you use most often.
@@ -78,9 +109,10 @@ If you use AI-native editors like Cursor or Windsurf:
 
 ## 📂 Repository Structure
 
-* **[.claude-plugin/](https://github.com/jabez4jc/pinescriptv6/tree/main/.claude-plugin)**: `plugin.json` + `marketplace.json` — makes this repo installable as a Claude Code plugin (Option 1 above).
+* **[.claude-plugin/](https://github.com/jabez4jc/pinescriptv6/tree/main/.claude-plugin)**: `plugin.json` + `marketplace.json` — makes this repo installable as a Claude Code plugin (Option 2 above).
 * **[skills/pinescript-v6/](https://github.com/jabez4jc/pinescriptv6/tree/main/skills/pinescript-v6)**: The Claude Code skill that routes Pine Script requests to the right reference file. Self-contained — bundles its own copy of the docs so it works if copied out on its own.
 * **[agents/pinescript-developer.md](https://github.com/jabez4jc/pinescriptv6/blob/main/agents/pinescript-developer.md)** + **[agents/pinescript-developer/](https://github.com/jabez4jc/pinescriptv6/tree/main/agents/pinescript-developer)**: The `pinescript-developer` subagent definition and its bundled reference copy — also self-contained; copy both together.
+* **[bin/cli.mjs](https://github.com/jabez4jc/pinescriptv6/blob/main/bin/cli.mjs)**: The `npx pinescript-v6` CLI — global installer (`install` / `uninstall`) and MCP server (`mcp`).
 * **[LLM_MANIFEST.md](https://github.com/jabez4jc/pinescriptv6/blob/main/LLM_MANIFEST.md)**: The master index. Start here.
 * **[concepts/](https://github.com/jabez4jc/pinescriptv6/tree/main/concepts)**: Explanations of how the Pine engine works (Execution model, Timeframes).
 * **[reference/](https://github.com/jabez4jc/pinescriptv6/tree/main/reference)**: The strict API dictionary.
@@ -131,6 +163,13 @@ on every commit. As a backstop, [`.github/workflows/verify-bundle-sync.yml`](htt
 re-runs the same script in CI and fails the build if any bundle is out of
 sync with the canonical docs — so drift can't land on `main` even if the hook
 was skipped or bypassed.
+
+Run `npm test` (`./tests/test-cli.sh`) after touching `bin/cli.mjs` — it exercises
+install/uninstall against a throwaway `HOME` and does an MCP handshake.
+Publishing a new npm version runs `sync-bundles.sh` automatically via `prepack`:
+```
+npm version patch && npm publish
+```
 
 ---
 

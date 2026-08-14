@@ -11,6 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps and smoke-test the CLI
+        run: |
+          npm ci
+          npm test
+
       - name: Re-run sync-bundles.sh
         run: ./scripts/sync-bundles.sh
 
